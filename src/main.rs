@@ -9,7 +9,14 @@ fn main() {
 
         let command = read_input();
 
-        println!("{}: command not found", command.trim());
+        let command = command.trim().to_string();
+
+        if command == "exit" {
+            break;
+        }
+
+        println!("{}: command not found", command);
+
     }
 }
 
