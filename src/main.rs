@@ -2,28 +2,36 @@
 use std::io::{self, Write};
 
 fn main() {
-    // TODO: Uncomment the code below to pass the first stage
+    shell_loop();
+}
+
+fn shell_loop() {
     loop {
         print!("$ ");
         io::stdout().flush().unwrap();
 
-        let command = read_input();
+        let command = read_input_and_trim();
 
-        let command = command.trim().to_string();
+        if command.is_empty() {
+            continue;
+        }
 
         if command == "exit" {
             break;
         }
 
-        println!("{}: command not found", command);
-
+        handle_invalid_command(&command);
     }
 }
 
-fn read_input() -> String {
-    let mut command = String::new();
+fn read_input_and_trim() -> String {
+    let mut input = String::new();
 
-    io::stdin().read_line(&mut command).unwrap();
+    io::stdin().read_line(&mut input).unwrap();
 
-    command
+    input.trim().to_string()
+}
+
+fn handle_invalid_command(command: &str) {
+    println!("{}: command not found", command);
 }
