@@ -38,6 +38,13 @@ fn handle_command(command: &str) {
     } else if command.starts_with("echo ") {
         let content = &command[5..];
         println!("{}", content);
+    } else if command.starts_with("type ") {
+        let content = &command[5..];
+        if content == "echo" || content == "exit" || content == "type" {
+            println!("{} is a shell builtin", content);
+        } else {
+            println!("{}: not found", content);
+        }
     } else {
         println!("{}: command not found", command);
     }
