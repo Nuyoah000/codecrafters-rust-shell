@@ -20,7 +20,8 @@ fn shell_loop() {
             break;
         }
 
-        handle_invalid_command(&command);
+        // handle_invalid_command(&command);
+        handle_command(&command);
     }
 }
 
@@ -32,6 +33,15 @@ fn read_input_and_trim() -> String {
     input.trim().to_string()
 }
 
-fn handle_invalid_command(command: &str) {
-    println!("{}: command not found", command);
+// fn handle_invalid_command(command: &str) {
+//     println!("{}: command not found", command);
+// }
+
+fn handle_command(command: &str) {
+    if command.starts_with("echo ") {
+        let content = &command[5..];
+        println!("{}", content);
+    } else {
+        println!("{}: command not fount", command);
+    }
 }
