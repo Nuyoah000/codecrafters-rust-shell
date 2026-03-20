@@ -7,22 +7,21 @@ fn main() {
 
 fn shell_loop() {
     loop {
-        print!("$ ");
-        io::stdout().flush().unwrap();
+        print_prompt();
 
         let command = read_input_and_trim();
-
-        if command.is_empty() {
-            continue;
-        }
 
         if command == "exit" {
             break;
         }
 
-        // handle_invalid_command(&command);
         handle_command(&command);
     }
+}
+
+fn print_prompt() {
+    print!("$ ");
+    io::stdout().flush().unwrap();
 }
 
 fn read_input_and_trim() -> String {
@@ -33,12 +32,10 @@ fn read_input_and_trim() -> String {
     input.trim().to_string()
 }
 
-// fn handle_invalid_command(command: &str) {
-//     println!("{}: command not found", command);
-// }
-
 fn handle_command(command: &str) {
-    if command.starts_with("echo ") {
+    if command.is_empty() {
+        return;
+    } else if command.starts_with("echo ") {
         let content = &command[5..];
         println!("{}", content);
     } else {
