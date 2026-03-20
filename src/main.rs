@@ -42,6 +42,6 @@ fn handle_command(command: &str) {
         let content = &command[5..];
         println!("{}", content);
     } else {
-        println!("{}: command not fount", command);
+        println!("{}: command not found", command);
     }
 }
