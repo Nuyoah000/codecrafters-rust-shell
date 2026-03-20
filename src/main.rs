@@ -1,5 +1,9 @@
+use std::env;
 #[allow(unused_imports)]
 use std::io::{self, Write};
+use std::path::Path;
+
+const BUILTINS: &[&str] = &["echo", "exit", "type"];
 
 fn main() {
     shell_loop();
@@ -26,14 +30,11 @@ fn print_prompt() {
 
 fn read_input_and_trim() -> String {
     let mut input = String::new();
-
     io::stdin().read_line(&mut input).unwrap();
-
     input.trim().to_string()
 }
 
 fn is_builtin(command: &str) -> bool {
-    const BUILTINS: &[&str] = &["echo", "exit", "type"];
     BUILTINS.contains(&command)
 }
 
@@ -44,13 +45,49 @@ fn handle_command(command: &str) {
         let content = &command[5..];
         println!("{}", content);
     } else if command.starts_with("type ") {
-        let content = &command[5..];
-        if is_builtin(content) {
-            println!("{} is a shell builtin", content);
+        let target = &command[5..];
+        if is_builtin(target) {
+            println!("{} is a shell builtin", target);
         } else {
-            println!("{}: not found", content);
+            match find_executable_in_path(target) {
+                Some(full_path) => println!("{} is {}", target, full_path),
+                None => println!("{}: not found", target),
+            }
         }
     } else {
         println!("{}: command not found", command);
+    }
+}
+
+fn find_executable_in_path(command: &str) -> Option<String> {
+    let path_env = env::var("PATH").ok()?;
+
+    for dir in env::split_paths(&path_env) {
+        let full_path = dir.join(command);
+
+        if !full_path.is_file() {
+            continue;
+        }
+
+        if is_executable(&full_path) {
+            return full_path.to_str().map(|s| s.to_string());
+        }
+    }
+
+    None
+}
+
+fn is_executable(path: &Path) -> bool {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        path.metadata()
+            .map(|m| m.permissions().mode() & 0o111 != 0)
+            .unwrap_or(false)
+    }
+
+    #[cfg(windows)]
+    {
+        path.exists()
     }
 }
