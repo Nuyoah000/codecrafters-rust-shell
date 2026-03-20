@@ -32,6 +32,11 @@ fn read_input_and_trim() -> String {
     input.trim().to_string()
 }
 
+fn is_builtin(command: &str) -> bool {
+    const BUILTINS: &[&str] = &["echo", "exit", "type"];
+    BUILTINS.contains(&command)
+}
+
 fn handle_command(command: &str) {
     if command.is_empty() {
         return;
@@ -40,7 +45,7 @@ fn handle_command(command: &str) {
         println!("{}", content);
     } else if command.starts_with("type ") {
         let content = &command[5..];
-        if content == "echo" || content == "exit" || content == "type" {
+        if is_builtin(content) {
             println!("{} is a shell builtin", content);
         } else {
             println!("{}: not found", content);
