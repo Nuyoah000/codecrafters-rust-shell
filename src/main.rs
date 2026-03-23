@@ -65,8 +65,8 @@ fn handle_command(command: &str) {
         }
     }
     else {
-        if let Some(full_path) = find_executable_in_path(cmd_name) {
-            let _ = Command::new(full_path).args(args).spawn().and_then(|mut child| child.wait());
+        if find_executable_in_path(cmd_name).is_some() {
+            let _ = Command::new(cmd_name).args(args).spawn().and_then(|mut child| child.wait());
         } else {
             println!("{}: command not found", cmd_name);
         }
