@@ -1,9 +1,8 @@
-use std::env;
 #[allow(unused_imports)]
 use std::io::{self, Write};
 use std::path::Path;
-
-const BUILTINS: &[&str] = &["echo", "exit", "type"];
+use std::env;
+use std::process::Command;
 
 fn main() {
     shell_loop();
@@ -34,6 +33,8 @@ fn read_input_and_trim() -> String {
     input.trim().to_string()
 }
 
+const BUILTINS: &[&str] = &["echo", "exit", "type"];
+
 fn is_builtin(command: &str) -> bool {
     BUILTINS.contains(&command)
 }
@@ -41,11 +42,19 @@ fn is_builtin(command: &str) -> bool {
 fn handle_command(command: &str) {
     if command.is_empty() {
         return;
-    } else if command.starts_with("echo ") {
+    } 
+    
+    let mut parts = command.split_whitespace();
+    let cmd_name = parts.next().unwrap();
+    let args: Vec<&str> = parts.collect();
+
+    if cmd_name == "echo" {
         let content = &command[5..];
         println!("{}", content);
-    } else if command.starts_with("type ") {
-        let target = &command[5..];
+    }
+    else if cmd_name == "type" {
+        let target = args.first().unwrap_or(&"");
+
         if is_builtin(target) {
             println!("{} is a shell builtin", target);
         } else {
@@ -54,8 +63,13 @@ fn handle_command(command: &str) {
                 None => println!("{}: not found", target),
             }
         }
-    } else {
-        println!("{}: command not found", command);
+    }
+    else {
+        if let Some(full_path) = find_executable_in_path(cmd_name) {
+            let _ = Command::new(full_path).args(args).spawn().and_then(|mut child| child.wait());
+        } else {
+            println!("{}: command not found", cmd_name);
+        }
     }
 }
 
